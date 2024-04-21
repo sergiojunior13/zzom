@@ -6,6 +6,8 @@ import { APIMusicData } from "@/types/music";
 import { MusicAPI } from "@/services/music-api";
 import { MusicsList } from "@/components/music-list";
 import { Spinner } from "@/components/spinner";
+import { Button } from "@/components/button";
+import { Input } from "@/components/input";
 
 export default function Home() {
   const [musicsFoundPromise, setMusicsFoundPromise] = useState<Promise<APIMusicData[]>>();
@@ -25,18 +27,8 @@ export default function Home() {
       <h1 className="text-4xl">Encontre suas músicas favoritas!</h1>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4 w-full">
-        <input
-          type="text"
-          name="search"
-          placeholder="Pesquise uma música..."
-          className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2 outline-indigo-900 placeholder:text-zinc-600"
-        />
-        <button
-          type="submit"
-          className="w-full p-2 bg-indigo-700 hover:bg-indigo-800 rounded-lg font-medium"
-        >
-          Pesquisar
-        </button>
+        <Input type="text" name="search" placeholder="Pesquise uma música..." />
+        <Button type="submit">Pesquisar</Button>
       </form>
 
       <Suspense
