@@ -8,6 +8,9 @@ require "./../vendor/autoload.php";
 
 
 class playlistActions {
+
+    //! Preciso do modelo do JSON, assim, consigo modificar os valores corretos dos índices corretos
+
     public function addMusicToPlaylist() {
         // TODO: adicionar funcionalidade, (no returns), adicionar parâmetros: iddaplaylist e idmusica
         require "./Connection.php";
