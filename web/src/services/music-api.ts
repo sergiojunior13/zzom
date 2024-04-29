@@ -1,32 +1,32 @@
-import { APIFullMusicData, APIMusicData } from "@/types/music";
+import { APIMusicData } from "@/types/music";
 import axios from "axios";
 
 export class MusicAPI {
   static async searchMusics(searchValue: string) {
-    const musicsAndArtistsFound: APIMusicData[] = await axios
-      .get(`https://api.vagalume.com.br/search.artmus?q=${searchValue}&limit=15`)
-      .then(res => res.data.response.docs);
+    const musicsFound = await axios
+      .get<{data: APIMusicData[]}>(`https://api.deezer.com/search?q=${searchValue}`)
+      .then(res => res.data.data)
 
-    const onlyMusicsFound = musicsAndArtistsFound.filter(music => music.title);
-    return onlyMusicsFound;
+      if(!musicsFound) return []
+
+    return musicsFound;
   }
 
   static async getFullMusicData(musicId: string) {
     const fullMusicData = await axios
-      .get(`https://api.vagalume.com.br/search.php?musid=${musicId}`)
-      .then(res => res.data as APIFullMusicData);
+      .get(`https://api.deezer.com/track/${musicId}`)
+      .then(res => res.data as APIMusicData);
 
-    const musicWasFound = !!fullMusicData?.mus[0];
+    const musicWasFound = !!fullMusicData;
 
     if (!musicWasFound) throw new Error("Music not found");
 
-    const music = fullMusicData.mus[0];
-    const artist = fullMusicData.art;
+    const artist = fullMusicData.artist.name;
 
-    const musicContainsBadWords = fullMusicData.badwords;
+    const musicContainsBadWords = fullMusicData.explicit_lyrics;
 
     return {
-      music,
+      music: fullMusicData,
       artist,
       musicContainsBadWords,
     };

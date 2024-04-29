@@ -8,4 +8,5 @@ export type PlaylistMusic = {
   title: string;
   band: string;
   id: string;
+  imgSrc: string;
 };

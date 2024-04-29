@@ -17,9 +17,9 @@ export default function Home() {
     const formData = new FormData(e.target as HTMLFormElement);
     const searchValue = formData.get("search") as string;
 
-    const musicsFoundFromAPI = MusicAPI.searchMusics(searchValue);
+    const musicsFoundPromiseFromAPI = MusicAPI.searchMusics(searchValue);
 
-    setMusicsFoundPromise(musicsFoundFromAPI);
+    setMusicsFoundPromise(musicsFoundPromiseFromAPI);
   }
 
   return (
