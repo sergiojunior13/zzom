@@ -12,7 +12,7 @@ type FullMusicDataProps = {
 export default async function FullMusicData({ params }: FullMusicDataProps) {
   const { musicId } = params;
 
-  const { music, artist, musicContainsBadWords } = await MusicAPI.getFullMusicData(musicId);
+  const { music, artist, musicContainsBadWords, lyrics } = await MusicAPI.getFullMusicData(musicId);
 
   return (
     <Section className="my-14 max-w-3xl w-full m-auto px-8">
@@ -40,7 +40,7 @@ export default async function FullMusicData({ params }: FullMusicDataProps) {
         />
       </div>
 
-      {/* <p className="whitespace-break-spaces text-zinc-200">{music}</p> */}
+      <p className="whitespace-break-spaces text-zinc-200">{lyrics}</p>
     </Section>
   );
 }

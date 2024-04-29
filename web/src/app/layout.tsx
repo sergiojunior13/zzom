@@ -13,7 +13,7 @@ export default function RootLayout({
     <html lang="pt-br">
       <head>
         <title>ZZOM: Encontre suas músicas favoritas</title>
-        <link rel="shortcut icon" href="favicon.svg" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon" />
       </head>
       <body
         className={`${poppins.className} bg-zinc-950 text-white bg-background bg-cover backdrop-brightness-50 min-h-screen`}
