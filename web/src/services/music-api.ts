@@ -29,7 +29,7 @@ export class MusicAPI {
     const lyrics = await MusicAPI.getMusicLyrics(
       fullMusicData.title_short,
       fullMusicData.artist.name
-    );
+    ).catch(e => `Letra da música não encontrada. (Erro: ${e.message || "Desconhecido"})`);
 
     return {
       music: fullMusicData,
@@ -44,8 +44,7 @@ export class MusicAPI {
       .get<SearchMusicFromLyricsAPIResponse>(
         `https://api.vagalume.com.br/search.excerpt?q=${musicTitle}&limit=10`
       )
-      .then(res => res.data.response.docs)
-      .catch(console.log);
+      .then(res => res.data.response.docs);
 
     const musicFoundGivenTitleAndArtist = musicsFoundFromLyricsAPI?.find(
       music =>
