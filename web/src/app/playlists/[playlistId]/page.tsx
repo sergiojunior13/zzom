@@ -39,7 +39,13 @@ export default function FullPlaylistData({ params }: { params: { playlistId: str
   );
 }
 
-const MusicCard = ({ id, band, title, playlistId }: PlaylistMusic & { playlistId: string }) => {
+const MusicCard = ({
+  id,
+  band,
+  title,
+  playlistId,
+  imgSrc,
+}: PlaylistMusic & { playlistId: string }) => {
   const router = useRouter();
   async function deleteMusic() {
     await playlistRepository.removeMusicFromPlaylist(playlistId, id);
@@ -49,7 +55,8 @@ const MusicCard = ({ id, band, title, playlistId }: PlaylistMusic & { playlistId
 
   return (
     <li key={id} className="p-3 rounded-lg hover:bg-zinc-800 flex justify-between items-center">
-      <Link href={`/music/${id}`} className="w-full">
+      <Link href={`/music/${id}`} className="flex gap-3 items-center">
+        <img src={imgSrc} alt={`capa da música ${title}`} className="rounded-lg h-20 w-auto" />
         <div>
           <h3 className="font-semibold text-lg">{title}</h3>
           <p className="text-zinc-200">{band}</p>

@@ -12,7 +12,7 @@ type FullMusicDataProps = {
 export default async function FullMusicData({ params }: FullMusicDataProps) {
   const { musicId } = params;
 
-  const { music, artist, musicContainsBadWords } = await MusicAPI.getFullMusicData(musicId);
+  const { music, artist, musicContainsBadWords, lyrics } = await MusicAPI.getFullMusicData(musicId);
 
   return (
     <Section className="my-14 max-w-3xl w-full m-auto px-8">
@@ -26,14 +26,21 @@ export default async function FullMusicData({ params }: FullMusicDataProps) {
               Contém palavrões
             </span>
           )}
-          <h1 className="font-bold text-2xl">{music.name}</h1>
-          <span className="font-semibold text-indigo-500 text-xl">{artist.name}</span>
+          <h1 className="font-bold text-2xl">{music.title}</h1>
+          <span className="font-semibold text-indigo-500 text-xl">{artist}</span>
         </div>
 
-        <AddToPlaylistButton music={{ id: music.id, band: artist.name, title: music.name }} />
+        <AddToPlaylistButton
+          music={{
+            id: music.id,
+            band: artist,
+            title: music.title,
+            imgSrc: music.album.cover_medium,
+          }}
+        />
       </div>
 
-      <p className="whitespace-break-spaces text-zinc-200">{music.text}</p>
+      <p className="whitespace-break-spaces text-zinc-200">{lyrics}</p>
     </Section>
   );
 }

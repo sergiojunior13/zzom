@@ -1,34 +1,66 @@
-import { APIFullMusicData, APIMusicData } from "@/types/music";
+import { SearchMusicFromLyricsAPIResponse } from "@/types/lyrics-api-response";
+import { APIMusicData } from "@/types/music";
 import axios from "axios";
 
 export class MusicAPI {
   static async searchMusics(searchValue: string) {
-    const musicsAndArtistsFound: APIMusicData[] = await axios
-      .get(`https://api.vagalume.com.br/search.artmus?q=${searchValue}&limit=15`)
-      .then(res => res.data.response.docs);
+    const musicsFound = await axios
+      .get<{ data: APIMusicData[] }>(`https://api.deezer.com/search?q=${searchValue}`)
+      .then(res => res.data.data);
 
-    const onlyMusicsFound = musicsAndArtistsFound.filter(music => music.title);
-    return onlyMusicsFound;
+    if (!musicsFound) return [];
+
+    return musicsFound;
   }
 
   static async getFullMusicData(musicId: string) {
     const fullMusicData = await axios
-      .get(`https://api.vagalume.com.br/search.php?musid=${musicId}`)
-      .then(res => res.data as APIFullMusicData);
+      .get(`https://api.deezer.com/track/${musicId}`)
+      .then(res => res.data as APIMusicData);
 
-    const musicWasFound = !!fullMusicData?.mus[0];
+    const musicWasFound = !!fullMusicData;
 
     if (!musicWasFound) throw new Error("Music not found");
 
-    const music = fullMusicData.mus[0];
-    const artist = fullMusicData.art;
+    const artist = fullMusicData.artist.name;
 
-    const musicContainsBadWords = fullMusicData.badwords;
+    const musicContainsBadWords = fullMusicData.explicit_lyrics;
+
+    const lyrics = await MusicAPI.getMusicLyrics(
+      fullMusicData.title_short,
+      fullMusicData.artist.name
+    ).catch(e => `Letra da música não encontrada. (Erro: ${e.message || "Desconhecido"})`);
 
     return {
-      music,
+      music: fullMusicData,
+      lyrics,
       artist,
       musicContainsBadWords,
     };
+  }
+
+  static async getMusicLyrics(musicTitle: string, musicArtist: string) {
+    const musicsFoundFromLyricsAPI = await axios
+      .get<SearchMusicFromLyricsAPIResponse>(
+        `https://api.vagalume.com.br/search.excerpt?q=${musicTitle}&limit=10`
+      )
+      .then(res => res.data.response.docs);
+
+    const musicFoundGivenTitleAndArtist = musicsFoundFromLyricsAPI?.find(
+      music =>
+        music.band.toLowerCase() == musicArtist.toLowerCase() &&
+        music.title.toLowerCase() == musicTitle.toLowerCase()
+    );
+
+    if (!musicsFoundFromLyricsAPI || !musicFoundGivenTitleAndArtist)
+      return "Letra da música não encontrada.";
+
+    const lyrics = await axios
+      .get(`https://api.vagalume.com.br/search.php?musid=${musicFoundGivenTitleAndArtist.id}`)
+      .then(res => res?.data?.mus[0]?.text as string | null);
+
+    if (!lyrics) return "Letra da música não encontrada.";
+
+    return lyrics;
   }
 }
