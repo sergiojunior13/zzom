@@ -6,39 +6,78 @@ error_reporting(E_ALL);
 
 require "./../vendor/autoload.php";
 
+// $hardcodedPlaylists = [
+//     {
+//       name: "Playlist 1",
+//       id: "1",
+//       musics: [
+//         { id: "1", band: "Teste", title: "Titulo" },
+//         { id: "2", band: "Teste 2", title: "Titulo 2" },
+//       ],
+//     },
+//     {
+//       name: "Playlist 2",
+//       id: "2",
+//       musics: [
+//         { id: "1", band: "Teste playlist 2", title: "Titulo playlist 2" },
+//         { id: "2", band: "Teste playlist 2 2", title: "Titulo playlist 2 2" },
+//       ],
+//     },
+//   ];
 
-class playlistActions {
 
-    //! Preciso do modelo do JSON, assim, consigo modificar os valores corretos dos índices corretos
+// '[{"name":"Playlist 1","id":"1","musics":[{"id":"1","band":"Teste","title":"Titulo"},{"id":"2","band":"Teste 2","title":"Titulo 2"}]},{"name":"Playlist 2","id":"2","musics":[{"id":"1","band":"Teste playlist 2","title":"Titulo playlist 2"},{"id":"2","band":"Teste playlist 2 2","title":"Titulo playlist 2 2"}]}]'
 
-    public function addMusicToPlaylist() {
-        // TODO: adicionar funcionalidade, (no returns), adicionar parâmetros: iddaplaylist e idmusica
+class playlistActions 
+{
+    public function addMusicToPlaylist($userName, $idPlaylist, $idMusic, $band, $musicTitle) 
+    {
+
+        // Importa conexão
         require "./Connection.php";
 
+        // Query para pegar a playlist do usuário $userName
         $query = "SELECT playlist FROM users";
-
         $result = mysqli_query($mysqli, $query);
         $result = mysqli_fetch_assoc($result);
 
-        $playlistObject = json_decode($result['playlist'], true);
-        dump($playlistObject);
-        dump($playlistObject['playlists'][0]['musicas'][0]['titulo']);
+        $getFullPlaylist = $result["playlist"];
+       
+        // Pega a playlist que era string e transforma em array associativo
+        $playlistObject = json_decode($getFullPlaylist, true);
 
+        // Pega a última chave do array associativo
+        $key = array_keys($playlistObject[$idPlaylist]["musics"]);
+        $lastKey = end($key);
+        
+        // Cria uma nova chave e adiciona valores
+        $playlistObject[$idPlaylist]["musics"][$lastKey + 1] = ["id" => "$idMusic", "band" => "$band", "title" => "$musicTitle"]; 
+
+        // Volta para JSON, string
+        $newJson = json_encode($playlistObject);
+
+        // Atualiza no DB
+        $queryUpdate = "UPDATE users SET playlist = '$newJson' WHERE username = '$userName'";
+        $updatePlaylist = mysqli_query($mysqli, $queryUpdate);
     }
 
-    public function removeMusicFromPlaylist() {
+    public function removeMusicFromPlaylist() 
+    {
+
         //TODO: adicionar funcionalidade, (no return), adicionar parâmetros: iddaplaylist e idmusica
         require "./Connection.php";
+        // Ideia: pede id no parametro...
         $query = "SELECT playlist FROM users";
         $result = mysqli_query($mysqli, $query);
 
         $playlist = mysqli_fetch_assoc($result);
 
-        // Bota em objeto php, modifica, e dps volta pra JSON e update na tabela;
-        var_dump(json_decode($playlist["playlist"]));
+        // Bota em objeto php, modifica, e dps volta pra JSON (string) e update na tabela;
+        // var_dump(json_decode($playlist["playlist"]));
     }
 
-    public function getFullPlaylistData() {
+    public function getFullPlaylistData() 
+    {
         //TODO: precisa retornar info da playlist, adicionar parâmetros: iddaplaylist
         require "./Connection.php";
 
@@ -51,9 +90,11 @@ class playlistActions {
     }
 }
 
-class userActions {
 
-    public function sign($username, $password) {
+class userActions 
+{
+    public function sign($username, $password) 
+    {
         require "./Connection.php";
 
         $query = "SELECT username FROM users WHERE username = '$username'";
@@ -67,13 +108,10 @@ class userActions {
         } else {
             return "Nome de usuário já existe, tente outro nome!";
         }
-
-
-        
     }
 
-    public function login($nickname, $password) {
-        //TODO: Deve verificar se usuario existe e se existe verifica se a senha está correta.
+    public function login($nickname, $password) 
+    {
         require "./Connection.php";
         
         $query = "SELECT username, keyphrase FROM users WHERE username = '$nickname' AND keyphrase = '$password'";
@@ -88,5 +126,5 @@ class userActions {
 
 }
 
-$resulting = new userActions();
-$resulting-> sign("Frederico", "Megatron");
+$resulting = new playlistActions();
+$resulting-> addMusicToPlaylist("Farelo", 0, 3, "Linkin Park", "In the end");
