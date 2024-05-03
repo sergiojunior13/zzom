@@ -12,10 +12,16 @@ type FullMusicDataProps = {
 export default async function FullMusicData({ params }: FullMusicDataProps) {
   const { musicId } = params;
 
-  const { music, artist, musicContainsBadWords, lyrics } = await MusicAPI.getFullMusicData(musicId);
+  const musicData = await MusicAPI.getFullMusicData(musicId);
+
+  if(typeof musicData == "string") return <Section>
+    {musicData}
+  </Section>
+
+  const { music, artist, musicContainsBadWords, lyrics } = musicData
 
   return (
-    <Section className="my-14 max-w-3xl w-full m-auto px-8">
+    <Section>
       <Link href="/" className="text-indigo-700 flex gap-1 items-center">
         <PiCaretLeft color={colors.indigo[700]} size={20} /> Voltar
       </Link>

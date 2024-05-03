@@ -37,5 +37,7 @@ export type APIMusicData = {
     type: string;
   };
   type: string;
+
+  error?: Object;
 };
 

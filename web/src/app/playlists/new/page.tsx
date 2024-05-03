@@ -22,7 +22,7 @@ export default function NewPlaylist() {
   }
 
   return (
-    <Section className="my-14 max-w-3xl w-full m-auto px-8">
+    <Section >
       <h1 className="font-bold text-xl text-center">Criar Playlist</h1>
       <form onSubmit={onSubmit} className="mt-4">
         <Input

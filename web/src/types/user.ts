@@ -1,6 +1,6 @@
 export type User = {
-  name: string;
-  email: string;
+  username: string;
 };
 
 export type SignUser = User & { password: string };
+export type LoginUser = SignUser;
