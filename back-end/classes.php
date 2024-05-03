@@ -30,7 +30,45 @@ require "./../vendor/autoload.php";
 
 class playlistActions
 {
-    public function addMusicToPlaylist($userName, $idPlaylist, $idMusic, $band, $musicTitle)
+
+    public static function createPlaylist($userName, $playlistName, $playlistID) 
+    {
+        require "./Connection.php";
+
+        // Verifica se existe usuário
+        $query = "SELECT username FROM users WHERE username = '$userName'";
+        $result = mysqli_query($mysqli, $query);
+        $result = mysqli_fetch_assoc($result);
+        
+        if ($result == null) {
+            return "Usuário não encontrado";
+            exit();
+        }
+
+        // Pesquisa por playlist
+        $query = "SELECT playlist FROM users WHERE username = '$userName'";
+        $result = mysqli_query($mysqli, $query);
+        $result = mysqli_fetch_assoc($result);
+
+        $arrayPlaylist = json_decode($result["playlist"], true);
+
+        $key = array_keys($arrayPlaylist);
+        $getLastKey = end($key);
+
+        // Verifica se o JSON ta vazio
+        if ($getLastKey == false) {
+            $arrayPlaylist[0] = ["name" => "$playlistName", "id" => "$playlistID", "musics" => []];
+        } else {
+            $arrayPlaylist[$getLastKey + 1] = ["name" => "$playlistName", "id" => "$playlistID", "musics" => []];
+        }
+
+        // Escreve no banco de dados
+        $newJson = json_encode($arrayPlaylist);
+        $updatePlaylist = "UPDATE users SET playlist = '$newJson' WHERE username = '$userName'";
+        $update = mysqli_query($mysqli, $updatePlaylist);
+    }
+
+    public static function addMusicToPlaylist($userName, $idPlaylist, $idMusic, $band, $musicTitle)
     {
 
         // Importa conexão
@@ -61,7 +99,7 @@ class playlistActions
         $updatePlaylist = mysqli_query($mysqli, $queryUpdate);
     }
 
-    public function removeMusicFromPlaylist()
+    public static function removeMusicFromPlaylist()
     {
 
         //TODO: adicionar funcionalidade, (no return), adicionar parâmetros: iddaplaylist e idmusica
@@ -76,7 +114,7 @@ class playlistActions
         // var_dump(json_decode($playlist["playlist"]));
     }
 
-    public function getFullPlaylistData()
+    public static function getFullPlaylistData()
     {
         //TODO: precisa retornar info da playlist, adicionar parâmetros: iddaplaylist
         require "./Connection.php";
@@ -93,7 +131,7 @@ class playlistActions
 
 class userActions
 {
-    public function sign($username, $password)
+    public static function sign($username, $password)
     {
         require "./Connection.php";
 
@@ -111,7 +149,7 @@ class userActions
         }
     }
 
-    public function login($nickname, $password)
+    public static function login($nickname, $password)
     {
         require "./Connection.php";
 
@@ -126,5 +164,6 @@ class userActions
     }
 }
 
-$resulting = new playlistActions();
-$resulting->addMusicToPlaylist("Farelo", 0, 3, "Linkin Park", "In the end");
+playlistActions::createPlaylist("Frederico", "Coisa nova", "0");
+// $resulting->addMusicToPlaylist("Farelo", 0, 3, "Linkin Park", "In the end");
+//TODO: create new method to create playlist createPlaylist();
