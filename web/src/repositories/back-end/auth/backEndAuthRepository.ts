@@ -8,11 +8,9 @@ export class BackEndAuthRepository implements IAuthRepository {
       await API.post("/login", data);
     } catch (e: any) {
       const errorMessage =
-        (e?.response?.data as string) ||
-        (e?.message as string) ||
-        "Erro desconhecido.";
+        (e?.response?.data as string) || (e?.message as string) || "Erro desconhecido.";
 
-      return new Error(errorMessage);
+      throw new Error(errorMessage);
     }
   }
 
@@ -21,11 +19,9 @@ export class BackEndAuthRepository implements IAuthRepository {
       await API.post("/sign", data);
     } catch (e: any) {
       const errorMessage =
-        (e?.response?.data as string) ||
-        (e?.message as string) ||
-        "Erro desconhecido.";
+        (e?.response?.data as string) || (e?.message as string) || "Erro desconhecido.";
 
-      return new Error(errorMessage);
+      throw new Error(errorMessage);
     }
   }
 }
