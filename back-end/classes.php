@@ -26,10 +26,31 @@ require "./../vendor/autoload.php";
 //   ];
 
 
-// '[{"name":"Playlist 1","id":"1","musics":[{"id":"1","band":"Teste","title":"Titulo"},{"id":"2","band":"Teste 2","title":"Titulo 2"}]},{"name":"Playlist 2","id":"2","musics":[{"id":"1","band":"Teste playlist 2","title":"Titulo playlist 2"},{"id":"2","band":"Teste playlist 2 2","title":"Titulo playlist 2 2"}]}]'
-
+// {"playlists":[{"name":"Playlist 1","id":"1","musics":[{"id":"1","band":"Teste","title":"Titulo"},{"id":"2","band":"Teste 2","title":"Titulo 2"}]},{"name":"Playlist 2","id":"2","musics":[{"id":"1","band":"Teste playlist 2","title":"Titulo playlist 2"},{"id":"2","band":"Teste playlist 2 2","title":"Titulo playlist 2 2"}]}]}
 class playlistActions 
 {
+
+    public function createPlaylist($username, $playlistName, $playlistId) {
+        require "./Connection.php";
+
+        $query = "SELECT playlist FROM users WHERE username = '$username'";
+        $result = mysqli_query($mysqli, $query);
+        $result = mysqli_fetch_assoc($result);
+
+        $getPlaylist = json_decode($result["playlist"], true);
+        dump($getPlaylist);
+        $key = array_keys($getPlaylist);
+        $lastKey = end($key);
+        dump($lastKey);
+
+        $getPlaylist[$lastKey + 1] = ["name" => "$playlistName", "id" => "$playlistId", "musics" => []];
+
+        $newPlaylist = json_encode($getPlaylist);
+
+        $createPlaylist = "UPDATE users SET playlist = '$newPlaylist' WHERE username = '$username'";
+        $update = mysqli_query($mysqli, $createPlaylist);
+    }
+
     public function addMusicToPlaylist($userName, $idPlaylist, $idMusic, $band, $musicTitle) 
     {
 
@@ -59,6 +80,7 @@ class playlistActions
         // Atualiza no DB
         $queryUpdate = "UPDATE users SET playlist = '$newJson' WHERE username = '$userName'";
         $updatePlaylist = mysqli_query($mysqli, $queryUpdate);
+
     }
 
     public function removeMusicFromPlaylist() 
@@ -125,6 +147,14 @@ class userActions
     }
 
 }
+require "./Connection.php";
+
+$query = "SELECT playlist FROM users";
+$result = mysqli_query($mysqli, $query);
+$result = mysqli_fetch_assoc($result);
+
+dump( json_decode($result["playlist"], true));
 
 $resulting = new playlistActions();
-$resulting-> addMusicToPlaylist("Farelo", 0, 3, "Linkin Park", "In the end");
+// $resulting-> addMusicToPlaylist("Fábio", 0, 3, "Linkin Park", "In the end");
+$resulting-> createPlaylist("Fábio", "Playlist teste", "5");
