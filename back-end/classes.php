@@ -58,6 +58,8 @@ class playlistActions
         // Geração automática de ID da playlist
         for ($v = 0; $v < count($arrayPlaylist); $v++) {
             $getId = $arrayPlaylist[$v]["id"];
+
+            $existentID = null;
             if ($getId == $playlistID) {
                 $existentID = true;
             }
@@ -73,7 +75,7 @@ class playlistActions
         $getLastKey = end($key);
 
         // Verifica se o JSON ta vazio
-        if ($getLastKey == false) {
+        if (count($arrayPlaylist) == 0) {
             $arrayPlaylist[0] = ["name" => "$playlistName", "id" => $playlistID, "musics" => []];
         } else {
             $arrayPlaylist[$getLastKey + 1] = ["name" => "$playlistName", "id" => $playlistID, "musics" => []];
@@ -88,11 +90,13 @@ class playlistActions
     public static function addMusicToPlaylist($userName, $idPlaylist, $idMusic, $band, $musicTitle)
     {
 
+        // Para usar essa função recomendo puxar todas as infos das playlists e pegar o id de uma playlist e inserí-lo aqui nesse parâmetro
+
         // Importa conexão
         require "./Connection.php";
 
         // Query para pegar a playlist do usuário $userName
-        $query = "SELECT playlist FROM users";
+        $query = "SELECT playlist FROM users WHERE username = '$userName'";
         $result = mysqli_query($mysqli, $query);
         $result = mysqli_fetch_assoc($result);
 
@@ -105,6 +109,7 @@ class playlistActions
         $key = array_keys($playlistObject[$idPlaylist]["musics"]);
         $lastKey = end($key);
 
+
         // Cria uma nova chave e adiciona valores
         $playlistObject[$idPlaylist]["musics"][$lastKey + 1] = ["id" => "$idMusic", "band" => "$band", "title" => "$musicTitle"];
 
@@ -116,17 +121,33 @@ class playlistActions
         $updatePlaylist = mysqli_query($mysqli, $queryUpdate);
     }
 
-    public static function removeMusicFromPlaylist()
+    public static function removeMusicFromPlaylist($userName, $idPlaylist, $idMusic)
     {
 
         //TODO: adicionar funcionalidade, (no return), adicionar parâmetros: iddaplaylist e idmusica
         require "./Connection.php";
         // Ideia: pede id no parametro...
-        $query = "SELECT playlist FROM users";
+        $query = "SELECT playlist FROM users WHERE username = '$userName'";
         $result = mysqli_query($mysqli, $query);
 
         $playlist = mysqli_fetch_assoc($result);
 
+        $arrayPlaylist = json_decode($playlist['playlist'], true);
+
+        
+        if ($arrayPlaylist[$idPlaylist]['musics'][$idPlaylist]['id'] == $idMusic) {
+            dump("Música encontrada!");
+            unset($arrayPlaylist[$idPlaylist]['musics'][$idPlaylist]);
+            
+        } else {
+            echo "Música não encontrada!";
+        }
+
+        
+        $newJson = json_encode($arrayPlaylist);
+        $update = "UPDATE users set playlist = '$newJson' WHERE username = '$userName'";
+        $runUpdate = mysqli_query($mysqli, $update);
+        
         // Bota em objeto php, modifica, e dps volta pra JSON (string) e update na tabela;
         // var_dump(json_decode($playlist["playlist"]));
     }
@@ -181,6 +202,6 @@ class userActions
     }
 }
 
-playlistActions::createPlaylist("Farelo", "Coisa nova");
+playlistActions::removeMusicFromPlaylist('Coroa', 1, "12");
 // $resulting->addMusicToPlaylist("Farelo", 0, 3, "Linkin Park", "In the end");
 //TODO: create new method to create playlist createPlaylist();
