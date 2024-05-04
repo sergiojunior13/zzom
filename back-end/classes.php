@@ -31,9 +31,11 @@ require "./../vendor/autoload.php";
 class playlistActions
 {
 
-    public static function createPlaylist($userName, $playlistName, $playlistID) 
+    public static function createPlaylist($userName, $playlistName) 
     {
         require "./Connection.php";
+
+        static $playlistID = 0;
 
         // Verifica se existe usuário
         $query = "SELECT username FROM users WHERE username = '$userName'";
@@ -45,6 +47,7 @@ class playlistActions
             exit();
         }
 
+
         // Pesquisa por playlist
         $query = "SELECT playlist FROM users WHERE username = '$userName'";
         $result = mysqli_query($mysqli, $query);
@@ -52,20 +55,34 @@ class playlistActions
 
         $arrayPlaylist = json_decode($result["playlist"], true);
 
+        // Geração automática de ID da playlist
+        for ($v = 0; $v < count($arrayPlaylist); $v++) {
+            $getId = $arrayPlaylist[$v]["id"];
+            if ($getId == $playlistID) {
+                $existentID = true;
+            }
+
+            if ($existentID) {
+                $playlistID = $getId + 1;
+            }
+
+        }
+
+
         $key = array_keys($arrayPlaylist);
         $getLastKey = end($key);
 
         // Verifica se o JSON ta vazio
         if ($getLastKey == false) {
-            $arrayPlaylist[0] = ["name" => "$playlistName", "id" => "$playlistID", "musics" => []];
+            $arrayPlaylist[0] = ["name" => "$playlistName", "id" => $playlistID, "musics" => []];
         } else {
-            $arrayPlaylist[$getLastKey + 1] = ["name" => "$playlistName", "id" => "$playlistID", "musics" => []];
+            $arrayPlaylist[$getLastKey + 1] = ["name" => "$playlistName", "id" => $playlistID, "musics" => []];
         }
 
-        // Escreve no banco de dados
         $newJson = json_encode($arrayPlaylist);
         $updatePlaylist = "UPDATE users SET playlist = '$newJson' WHERE username = '$userName'";
         $update = mysqli_query($mysqli, $updatePlaylist);
+        dump($arrayPlaylist);
     }
 
     public static function addMusicToPlaylist($userName, $idPlaylist, $idMusic, $band, $musicTitle)
@@ -164,6 +181,6 @@ class userActions
     }
 }
 
-playlistActions::createPlaylist("Frederico", "Coisa nova", "0");
+playlistActions::createPlaylist("Farelo", "Coisa nova");
 // $resulting->addMusicToPlaylist("Farelo", 0, 3, "Linkin Park", "In the end");
 //TODO: create new method to create playlist createPlaylist();
