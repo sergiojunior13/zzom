@@ -4,6 +4,7 @@ import { AsideMenu } from '@/components/asidemenu'
 import { PlayerFooter } from "@/components/playerfooter";
 import { useState, useEffect } from "react";
 import { CardArea } from "@/components/cardArea";
+import { fetchTopTracks } from "@/services/rank-api";
 
 
 
