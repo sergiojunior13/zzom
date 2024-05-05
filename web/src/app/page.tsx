@@ -1,6 +1,7 @@
 "use client";
 import { Home, Search, Library } from "lucide-react";
 
+
 import { FormEvent, useState, Suspense, Children } from "react";
 import { APIMusicData } from "@/types/music";
 import { MusicAPI } from "@/services/music-api";
@@ -86,3 +87,4 @@ export default function HomeLayout () {
     </div>
   )
 }
+

@@ -7,6 +7,7 @@ import { Playlist } from "@/types/playlist";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PiPlusBold } from "react-icons/pi";
+import { Home, Search, Library } from "lucide-react";
 
 export default function Playlists() {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
@@ -27,8 +28,7 @@ export default function Playlists() {
 
   return (
     <Section className="my-14 max-w-3xl w-full m-auto">
-      <h1 className="text-xl font-bold text-center mb-4">Suas Playlists</h1>
-
+      
       <ul>
         {playlists.map(playlist => (
           <PlaylistCard {...playlist} />

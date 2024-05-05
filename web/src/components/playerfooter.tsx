@@ -3,6 +3,7 @@ import { Shuffle, SkipBack, Play, SkipForward, Repeat } from "lucide-react";
 export function PlayerFooter() {
   return (
     <div className="flex justify-between items-center gap-3 w-full h-8">
+
       <div className="flex items-center gap-3">
         <img src="/nf.jpeg" width="56" height="56" alt="foto do álbum" />
         <div className="flex flex-col">
