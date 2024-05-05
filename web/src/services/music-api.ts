@@ -18,9 +18,6 @@ export class MusicAPI {
       .get(`https://api.deezer.com/track/${musicId}`)
       .then(res => res.data as APIMusicData);
 
-    console.log(fullMusicData);
-    
-    
     const hadAnError = fullMusicData.error !== undefined;
 
     if (hadAnError) return "Música não encontrada.";
