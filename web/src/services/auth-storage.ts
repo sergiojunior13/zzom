@@ -17,3 +17,4 @@ export class AuthStorage {
     localStorage.removeItem(AuthStorage.AUTH_STORAGE_KEY);
   }
 }
+

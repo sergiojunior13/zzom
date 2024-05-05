@@ -47,4 +47,4 @@ export default function Sign() {
 
 async function submitSignToApiAndStorage({ username, password }: SignUser) {
   await authRepository.sign({ username, password }).then(() => AuthStorage.registerIsLogged());
-}
+

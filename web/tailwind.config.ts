@@ -11,6 +11,9 @@ const config: Config = {
       backgroundImage: {
         background: "url(../../public/background.jpg)",
       },
+      spacing: {
+        quadrado: "full"
+      }
     },
   },
   plugins: [],
