@@ -9,7 +9,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 
-  
+
 }>) {
   return (
     <html lang="pt-br">
@@ -17,12 +17,17 @@ export default function RootLayout({
         <title>ZZOM: Encontre suas músicas favoritas</title>
         <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon" />
       </head>
-      <body
+
+      <body className="bg-black text-zinc-50 overflow-hidden">
+      {children}
+      </body>
+
+      {/* <body
         className={`${poppins.className} bg-zinc-950 text-white bg-background bg-cover backdrop-brightness-50 min-h-screen`}
       >
         <Header />
         {children}
-      </body>
+      </body> */}
     </html>
   );
 }
