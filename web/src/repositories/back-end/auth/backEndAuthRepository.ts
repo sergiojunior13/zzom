@@ -5,7 +5,7 @@ import { API } from "@/services/back-end";
 export class BackEndAuthRepository implements IAuthRepository {
   async login(data: SignUser) {
     try {
-      await API.post("/login", data);
+      await API.post("/classes.php?func=login", { params: [data.username, data.password] });
     } catch (e: any) {
       const errorMessage =
         (e?.response?.data as string) || (e?.message as string) || "Erro desconhecido.";
@@ -16,7 +16,7 @@ export class BackEndAuthRepository implements IAuthRepository {
 
   async sign(data: SignUser) {
     try {
-      await API.post("/sign", data);
+      await API.post("/classes.php?func=sign", { params: [data.username, data.password] });
     } catch (e: any) {
       const errorMessage =
         (e?.response?.data as string) || (e?.message as string) || "Erro desconhecido.";

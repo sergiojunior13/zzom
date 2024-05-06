@@ -4,6 +4,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+header("Access-Control-Allow-Origin: *");
+header('Access-Control-Allow-Headers: Authorization, Content-Type, x-xsrf-token, x_csrftoken, Cache-Control, X-Requested-With');
+
 require "./../vendor/autoload.php";
 
 // $hardcodedPlaylists = [
@@ -28,10 +31,25 @@ require "./../vendor/autoload.php";
 
 // '[{"name":"Playlist 1","id":"1","musics":[{"id":"1","band":"Teste","title":"Titulo"},{"id":"2","band":"Teste 2","title":"Titulo 2"}]},{"name":"Playlist 2","id":"2","musics":[{"id":"1","band":"Teste playlist 2","title":"Titulo playlist 2"},{"id":"2","band":"Teste playlist 2 2","title":"Titulo playlist 2 2"}]}]'
 
+$methodToExecute = $_REQUEST["func"] ?? null;
+$params = json_decode(file_get_contents("php://input"))->params ?? null;
+
+if (!$methodToExecute) {
+    echo "Nenhum método fornecido";
+    exit();
+}
+
+if ($methodToExecute == "sign" || $methodToExecute == "login") {
+    echo userActions::$methodToExecute(...$params);
+    exit();
+}
+
+playlistActions::$methodToExecute(...$params);
+
 class playlistActions
 {
 
-    public static function createPlaylist($userName, $playlistName, $playlistID) 
+    public static function createPlaylist($userName, $playlistName, $playlistID)
     {
         require "./Connection.php";
 
@@ -39,7 +57,7 @@ class playlistActions
         $query = "SELECT username FROM users WHERE username = '$userName'";
         $result = mysqli_query($mysqli, $query);
         $result = mysqli_fetch_assoc($result);
-        
+
         if ($result == null) {
             return "Usuário não encontrado";
             exit();
@@ -164,6 +182,6 @@ class userActions
     }
 }
 
-playlistActions::createPlaylist("Frederico", "Coisa nova", "0");
+// playlistActions::createPlaylist("Frederico", "Coisa nova", "0");
 // $resulting->addMusicToPlaylist("Farelo", 0, 3, "Linkin Park", "In the end");
 //TODO: create new method to create playlist createPlaylist();
