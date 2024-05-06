@@ -4,15 +4,12 @@ import colors from "tailwindcss/colors";
 import { Section } from "@/components/section";
 import { MusicAPI } from "@/services/music-api";
 import { AddToPlaylistButton } from "@/components/add-to-playlist-button";
-import { useRouter } from "next/navigation";
 
 type FullMusicDataProps = {
   params: { musicId: string };
 };
 
 export default async function FullMusicData({ params }: FullMusicDataProps) {
-  const router = useRouter();
-
   const { musicId } = params;
 
   const musicData = await MusicAPI.getFullMusicData(musicId);
@@ -23,9 +20,9 @@ export default async function FullMusicData({ params }: FullMusicDataProps) {
 
   return (
     <Section>
-      <button onClick={router.back} className="text-indigo-700 flex gap-1 items-center">
+      <Link href="/search" className="text-indigo-700 flex gap-1 items-center">
         <PiCaretLeft color={colors.indigo[700]} size={20} /> Voltar
-      </button>
+      </Link>
       <div className="mb-8 flex justify-between items-start">
         <div className="mt-2">
           {musicContainsBadWords && (
