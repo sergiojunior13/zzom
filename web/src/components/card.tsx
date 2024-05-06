@@ -23,7 +23,7 @@ import { fetchTopTracks } from '@/services/rank-api';
 }
 export function Card({ title, artist, image }: CardProps) {
     return (
-        <a className="flex flex-col mt-1 justify-center h-64 w-64 gap-3 rounded-lg hover:bg-zinc-800 items-center p-3 relative">
+        <a className="flex flex-col mt-1 justify-center h-full w-64 gap-3 rounded-lg hover:bg-zinc-800 items-center p-8 relative">
             <img src={image} alt="Capa do álbum" className="rounded-lg h-quadrado w-quadrado" />
             <div className="flex items-start w-full flex-col font-semibold">
                 {title}
