@@ -1,7 +1,6 @@
 "use client";
 
 import { Poppins } from "next/font/google";
-import { Header } from "@/components/header";
 import "./globals.css";
 import { AuthStorage } from "@/services/auth-storage";
 import { useRouter } from "next/navigation";
@@ -12,15 +11,8 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-
-
-
-
-
 }>) {
-  const isLogged = AuthStorage.checkIsLogged();
-
-  console.log(isLogged);
+  const isLogged = typeof window !== "undefined" ? AuthStorage.checkIsLogged() : false;
 
   if (!isLogged) useRouter().replace("/sign");
 
@@ -31,9 +23,7 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon" />
       </head>
 
-      <body className="bg-black text-zinc-50">
-      {children}
-      </body>
+      <body className="bg-black text-zinc-50">{children}</body>
 
       {/* <body
         className={`${poppins.className} bg-zinc-950 text-white bg-background bg-cover backdrop-brightness-50 min-h-screen`}
@@ -41,7 +31,6 @@ export default function RootLayout({
         <Header />
         {children}
       </body> */}
-
     </html>
   );
 }
