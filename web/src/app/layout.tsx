@@ -5,6 +5,8 @@ import "./globals.css";
 import { AuthStorage } from "@/services/auth-storage";
 import { useRouter } from "next/navigation";
 import { AsideMenu } from "@/components/asidemenu";
+import React, { useEffect, useState } from 'react';
+import Menu from "@/components/menuhamburgue";
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700", "800"],
@@ -16,10 +18,41 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isLogged =
-    typeof window !== "undefined" ? AuthStorage.checkIsLogged() : false;
+  const router = useRouter();
+  const isLogged = typeof window !== "undefined" ? AuthStorage.checkIsLogged() : false;
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [showAsideMenu, setShowAsideMenu] = useState(false);
 
-  // if (!isLogged) useRouter().replace("/sign");
+  useEffect(() => {
+    // Função para atualizar a largura da tela
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    // Adicionando o event listener quando o componente é montado
+    window.addEventListener('resize', handleResize);
+
+    // Limpando o event listener quando o componente é desmontado
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []); // Dependência vazia significa que este efeito é executado apenas uma vez após a montagem do componente
+
+  useEffect(() => {
+    // Verifica se o usuário está logado quando o componente é montado
+    const isLogged = AuthStorage.checkIsLogged();
+    if (!isLogged) {
+      router.replace("/sign");
+    }
+  }, []);
+
+  const toggleAsideMenu = () => {
+    setShowAsideMenu(!showAsideMenu);
+  };
+
+  const closeAsideMenu = () => {
+    setShowAsideMenu(false);
+  };
 
   return (
     <html lang="pt-br">
@@ -31,8 +64,13 @@ export default function RootLayout({
       <body className="bg-black text-zinc-50">
         <div className="flex flex-col">
           <div className="flex flex-1 gap-2 p-1.5">
-            <AsideMenu />
-            <div className="bg-zinc-900 rounded-lg w-full">{children}</div>
+            <div>
+              {screenWidth > 768 && (
+                <button onClick={toggleAsideMenu} className="absolute bg-transparent"><Menu /></button>
+              )}
+            </div>
+            {showAsideMenu && <AsideMenu />}
+            <div className="bg-zinc-900 rounded-lg w-full" onClick={closeAsideMenu}>{children}</div>
           </div>
         </div>
       </body>
