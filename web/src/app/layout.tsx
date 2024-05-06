@@ -31,7 +31,7 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon" />
       </head>
 
-      <body className="bg-black text-zinc-50 overflow-hidden">
+      <body className="bg-black text-zinc-50">
       {children}
       </body>
 
