@@ -49,19 +49,22 @@ playlistActions::$methodToExecute(...$params);
 class playlistActions
 {
 
-    public static function createPlaylist($userName, $playlistName, $playlistID)
+    public static function createPlaylist($userName, $playlistName) 
     {
         require "./Connection.php";
+
+        static $playlistID = 0;
 
         // Verifica se existe usuário
         $query = "SELECT username FROM users WHERE username = '$userName'";
         $result = mysqli_query($mysqli, $query);
         $result = mysqli_fetch_assoc($result);
-
+        
         if ($result == null) {
             return "Usuário não encontrado";
             exit();
         }
+
 
         // Pesquisa por playlist
         $query = "SELECT playlist FROM users WHERE username = '$userName'";
@@ -70,17 +73,32 @@ class playlistActions
 
         $arrayPlaylist = json_decode($result["playlist"], true);
 
+        // Geração automática de ID da playlist
+        for ($v = 0; $v < count($arrayPlaylist); $v++) {
+            $getId = $arrayPlaylist[$v]["id"];
+
+            $existentID = null;
+            if ($getId == $playlistID) {
+                $existentID = true;
+            }
+
+            if ($existentID) {
+                $playlistID = $getId + 1;
+            }
+
+        }
+
+
         $key = array_keys($arrayPlaylist);
         $getLastKey = end($key);
 
         // Verifica se o JSON ta vazio
-        if ($getLastKey == false) {
-            $arrayPlaylist[0] = ["name" => "$playlistName", "id" => "$playlistID", "musics" => []];
+        if (count($arrayPlaylist) == 0) {
+            $arrayPlaylist[0] = ["name" => "$playlistName", "id" => $playlistID, "musics" => []];
         } else {
-            $arrayPlaylist[$getLastKey + 1] = ["name" => "$playlistName", "id" => "$playlistID", "musics" => []];
+            $arrayPlaylist[$getLastKey + 1] = ["name" => "$playlistName", "id" => $playlistID, "musics" => []];
         }
 
-        // Escreve no banco de dados
         $newJson = json_encode($arrayPlaylist);
         $updatePlaylist = "UPDATE users SET playlist = '$newJson' WHERE username = '$userName'";
         $update = mysqli_query($mysqli, $updatePlaylist);
@@ -89,15 +107,18 @@ class playlistActions
     public static function addMusicToPlaylist($userName, $idPlaylist, $idMusic, $band, $musicTitle)
     {
 
+        // Para usar essa função recomendo puxar todas as infos das playlists e pegar o id de uma playlist e inserí-lo aqui nesse parâmetro
+
         // Importa conexão
         require "./Connection.php";
 
         // Query para pegar a playlist do usuário $userName
-        $query = "SELECT playlist FROM users";
+        $query = "SELECT playlist FROM users WHERE username = '$userName'";
         $result = mysqli_query($mysqli, $query);
         $result = mysqli_fetch_assoc($result);
 
         $getFullPlaylist = $result["playlist"];
+
 
         // Pega a playlist que era string e transforma em array associativo
         $playlistObject = json_decode($getFullPlaylist, true);
@@ -106,7 +127,9 @@ class playlistActions
         $key = array_keys($playlistObject[$idPlaylist]["musics"]);
         $lastKey = end($key);
 
+
         // Cria uma nova chave e adiciona valores
+        $playlistObject[$idPlaylist]["musics"][$lastKey + 1] = ["id" => "$idMusic", "band" => "$band", "title" => "$musicTitle"];
         $playlistObject[$idPlaylist]["musics"][$lastKey + 1] = ["id" => "$idMusic", "band" => "$band", "title" => "$musicTitle"];
 
         // Volta para JSON, string
@@ -117,35 +140,53 @@ class playlistActions
         $updatePlaylist = mysqli_query($mysqli, $queryUpdate);
     }
 
-    public static function removeMusicFromPlaylist()
+    public static function removeMusicFromPlaylist($userName, $idPlaylist, $idMusic)
     {
 
-        //TODO: adicionar funcionalidade, (no return), adicionar parâmetros: iddaplaylist e idmusica
         require "./Connection.php";
-        // Ideia: pede id no parametro...
-        $query = "SELECT playlist FROM users";
+        $query = "SELECT playlist FROM users WHERE username = '$userName'";
         $result = mysqli_query($mysqli, $query);
 
         $playlist = mysqli_fetch_assoc($result);
 
-        // Bota em objeto php, modifica, e dps volta pra JSON (string) e update na tabela;
-        // var_dump(json_decode($playlist["playlist"]));
+        $arrayPlaylist = json_decode($playlist['playlist'], true);
+
+        
+        if ($arrayPlaylist[$idPlaylist]['musics'][$idPlaylist]['id'] == $idMusic) {
+            unset($arrayPlaylist[$idPlaylist]['musics'][$idPlaylist]);
+            
+        } else {
+            echo "Música não encontrada!";
+        }
+
+        
+        $newJson = json_encode($arrayPlaylist);
+        $update = "UPDATE users set playlist = '$newJson' WHERE username = '$userName'";
+        $runUpdate = mysqli_query($mysqli, $update);
     }
 
-    public static function getFullPlaylistData()
+    public static function getFullPlaylistData($userName)
     {
         //TODO: precisa retornar info da playlist, adicionar parâmetros: iddaplaylist
         require "./Connection.php";
 
-        $query = "SELECT playlist FROM users";
+        // Verifica se existe usuário
+        $getUser = "SELECT username FROM users WHERE username = '$userName'";
+        $result = mysqli_query($mysqli, $getUser);
+        $result = mysqli_fetch_assoc($result);
+
+        if ($result == null) {
+            exit("Usuário não encontrado!");
+        }
+
+        $query = "SELECT playlist FROM users WHERE username = '$userName'";
         $result = mysqli_query($mysqli, $query);
 
         $playlist = mysqli_fetch_assoc($result);
 
-        var_dump(json_decode($playlist["playlist"]));
+        return $playlist;
     }
 }
-
 
 class userActions
 {
@@ -161,7 +202,9 @@ class userActions
             $query = "INSERT INTO users VALUES (0, '$username', '$password', '{}')";
             $updatingTable = mysqli_query($mysqli, $query);
             return "Usuário cadastrado!";
+
         } else {
+            http_response_code(400);
             http_response_code(400);
             return "Nome de usuário já existe, tente outro nome!";
         }
@@ -171,6 +214,7 @@ class userActions
     {
         require "./Connection.php";
 
+
         $query = "SELECT username, keyphrase FROM users WHERE username = '$nickname' AND keyphrase = '$password'";
         $searchUser = mysqli_query($mysqli, $query);
         $searchUser = mysqli_fetch_assoc($searchUser);
@@ -179,9 +223,7 @@ class userActions
             http_response_code(400);
             return "Usuário e/ou senha incorretos!";
         }
-    }
-}
 
-// playlistActions::createPlaylist("Frederico", "Coisa nova", "0");
-// $resulting->addMusicToPlaylist("Farelo", 0, 3, "Linkin Park", "In the end");
-//TODO: create new method to create playlist createPlaylist();
+    }
+
+}
