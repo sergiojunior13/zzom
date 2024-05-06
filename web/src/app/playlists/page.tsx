@@ -8,17 +8,20 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PiPlusBold } from "react-icons/pi";
 import { Home, Search, Library } from "lucide-react";
+import { BackEndPlaylistRepository } from "@/repositories/back-end/playlist/backEndPlaylistRepository";
 
 export default function Playlists() {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
 
   useEffect(() => {
     playlistRepository.getPlaylists().then(setPlaylists);
+
+    new BackEndPlaylistRepository().getFullPlaylistData("0").then(console.log);
   }, []);
 
   if (!playlists || playlists.length == 0) {
     return (
-      <Section >
+      <Section>
         <p className="text-center mb-4">Você não possui nenhuma playlist.</p>
 
         <CreatePlaylistButton />
@@ -28,7 +31,6 @@ export default function Playlists() {
 
   return (
     <Section className="my-14 max-w-3xl w-full m-auto">
-      
       <ul>
         {playlists.map(playlist => (
           <PlaylistCard {...playlist} />

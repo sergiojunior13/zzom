@@ -50,7 +50,7 @@ const MusicCard = ({
   async function deleteMusic() {
     await playlistRepository.removeMusicFromPlaylist(playlistId, id);
 
-    router.refresh();
+    setTimeout(router.refresh, 300);
   }
 
   return (

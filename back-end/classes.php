@@ -32,7 +32,11 @@ require "./../vendor/autoload.php";
 // '[{"name":"Playlist 1","id":"1","musics":[{"id":"1","band":"Teste","title":"Titulo"},{"id":"2","band":"Teste 2","title":"Titulo 2"}]},{"name":"Playlist 2","id":"2","musics":[{"id":"1","band":"Teste playlist 2","title":"Titulo playlist 2"},{"id":"2","band":"Teste playlist 2 2","title":"Titulo playlist 2 2"}]}]'
 
 $methodToExecute = $_REQUEST["func"] ?? null;
-$params = json_decode(file_get_contents("php://input"))->params ?? null;
+
+$paramsArrayFromGetReq = json_decode($_GET["params"]) ?? null;
+$paramsArrayFromPostReq = json_decode(file_get_contents("php://input"))->params ?? null;
+
+$params = ($paramsArrayFromGetReq !== null ? $paramsArrayFromGetReq : $paramsArrayFromPostReq) ?? [];
 
 if (!$methodToExecute) {
     echo "Nenhum método fornecido";
@@ -40,16 +44,16 @@ if (!$methodToExecute) {
 }
 
 if ($methodToExecute == "sign" || $methodToExecute == "login") {
-    echo userActions::$methodToExecute(...$params);
+    echo json_encode(userActions::$methodToExecute(...$params));
     exit();
 }
 
-playlistActions::$methodToExecute(...$params);
+echo json_encode(playlistActions::$methodToExecute(...$params));
 
 class playlistActions
 {
 
-    public static function createPlaylist($userName, $playlistName) 
+    public static function createPlaylist($userName, $playlistName)
     {
         require "./Connection.php";
 
@@ -59,10 +63,10 @@ class playlistActions
         $query = "SELECT username FROM users WHERE username = '$userName'";
         $result = mysqli_query($mysqli, $query);
         $result = mysqli_fetch_assoc($result);
-        
+
         if ($result == null) {
-            return "Usuário não encontrado";
-            exit();
+            http_response_code(404);
+            exit("Usuário não encontrado");
         }
 
 
@@ -102,9 +106,11 @@ class playlistActions
         $newJson = json_encode($arrayPlaylist);
         $updatePlaylist = "UPDATE users SET playlist = '$newJson' WHERE username = '$userName'";
         $update = mysqli_query($mysqli, $updatePlaylist);
+
+        exit($playlistID);
     }
 
-    public static function addMusicToPlaylist($userName, $idPlaylist, $idMusic, $band, $musicTitle)
+    public static function addMusicToPlaylist($userName, $idPlaylist, $idMusic, $band, $musicTitle, $musicImgSrc)
     {
 
         // Para usar essa função recomendo puxar todas as infos das playlists e pegar o id de uma playlist e inserí-lo aqui nesse parâmetro
@@ -129,8 +135,7 @@ class playlistActions
 
 
         // Cria uma nova chave e adiciona valores
-        $playlistObject[$idPlaylist]["musics"][$lastKey + 1] = ["id" => "$idMusic", "band" => "$band", "title" => "$musicTitle"];
-        $playlistObject[$idPlaylist]["musics"][$lastKey + 1] = ["id" => "$idMusic", "band" => "$band", "title" => "$musicTitle"];
+        $playlistObject[$idPlaylist]["musics"][$lastKey + 1] = ["id" => "$idMusic", "band" => "$band", "title" => "$musicTitle", "imgSrc" => "$musicImgSrc"];
 
         // Volta para JSON, string
         $newJson = json_encode($playlistObject);
@@ -150,24 +155,70 @@ class playlistActions
         $playlist = mysqli_fetch_assoc($result);
 
         $arrayPlaylist = json_decode($playlist['playlist'], true);
+        $playlistMusics = $arrayPlaylist[$idPlaylist]["musics"];
 
-        
-        if ($arrayPlaylist[$idPlaylist]['musics'][$idPlaylist]['id'] == $idMusic) {
-            unset($arrayPlaylist[$idPlaylist]['musics'][$idPlaylist]);
-            
+        $musicToRemove = array_filter($playlistMusics, fn($music) => $music["id"] == $idMusic);
+
+        if ($musicToRemove) {
+            $musicsWithoutMusicToRemove = array_filter($playlistMusics, fn($music) => $music["id"] !== $idMusic);
+            $arrayPlaylist[$idPlaylist]['musics'] = $musicsWithoutMusicToRemove;
         } else {
             echo "Música não encontrada!";
         }
 
-        
         $newJson = json_encode($arrayPlaylist);
         $update = "UPDATE users set playlist = '$newJson' WHERE username = '$userName'";
         $runUpdate = mysqli_query($mysqli, $update);
     }
-
-    public static function getFullPlaylistData($userName)
+    public static function removePlaylist($userName, $idPlaylist)
     {
-        //TODO: precisa retornar info da playlist, adicionar parâmetros: iddaplaylist
+        require "./Connection.php";
+
+        $query = "SELECT playlist FROM users WHERE username = '$userName'";
+        $result = mysqli_query($mysqli, $query);
+
+        $playlist = mysqli_fetch_assoc($result);
+        $playlists = json_decode($playlist['playlist'], true);
+
+
+        if ($playlists[$idPlaylist]) {
+            unset($playlists[$idPlaylist]);
+        } else {
+            http_response_code(404);
+            exit("Playlist não encontrada!");
+        }
+
+
+        $newJson = json_encode($playlists);
+        $update = "UPDATE users set playlist = '$newJson' WHERE username = '$userName'";
+        $runUpdate = mysqli_query($mysqli, $update);
+    }
+
+    public static function getPlaylists($userName)
+    {
+        require "./Connection.php";
+
+        // Verifica se existe usuário
+        $getUser = "SELECT username FROM users WHERE username = '$userName'";
+        $result = mysqli_query($mysqli, $getUser);
+        $result = mysqli_fetch_assoc($result);
+
+        if ($result == null) {
+            http_response_code(404);
+            exit("Usuário não encontrado!");
+        }
+
+        $query = "SELECT playlist FROM users WHERE username = '$userName'";
+        $result = mysqli_query($mysqli, $query);
+
+        $playlistsAsString = mysqli_fetch_assoc($result)["playlist"] ?? "[]";
+
+        $playlists = json_decode($playlistsAsString, true);
+
+        return $playlists;
+    }
+    public static function getFullPlaylistData($userName, $idPlaylist)
+    {
         require "./Connection.php";
 
         // Verifica se existe usuário
@@ -182,9 +233,16 @@ class playlistActions
         $query = "SELECT playlist FROM users WHERE username = '$userName'";
         $result = mysqli_query($mysqli, $query);
 
-        $playlist = mysqli_fetch_assoc($result);
+        $playlistsAsString = mysqli_fetch_assoc($result)["playlist"];
 
-        return $playlist;
+        $playlists = json_decode($playlistsAsString, true);
+
+        $playlistFromId = $playlists[$idPlaylist] ?? null;
+        if (!$playlistFromId) {
+            exit("Playlist não encontrada.");
+        }
+
+        return $playlistFromId;
     }
 }
 

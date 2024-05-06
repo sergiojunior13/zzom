@@ -1,12 +1,11 @@
 "use client";
-import { FormEvent, useState, Suspense, Children } from "react";
+import { FormEvent, useState, Suspense } from "react";
 import { APIMusicData } from "@/types/music";
 import { MusicAPI } from "@/services/music-api";
 import { MusicsList } from "@/components/music-list";
 import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
-import { Header } from "@/components/header";
 
 export default function Home() {
   const [musicsFoundPromise, setMusicsFoundPromise] = useState<Promise<APIMusicData[]>>();
@@ -22,7 +21,6 @@ export default function Home() {
   }
 
   return (
-  
     <main className="whitespace-break-spaces p-6 flex flex-col items-center gap-10 max-w-3xl m-auto">
       <h1 className="text-4xl">Encontre suas músicas favoritas!</h1>
 

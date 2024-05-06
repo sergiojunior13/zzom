@@ -46,5 +46,7 @@ export default function Login() {
 }
 
 async function submitLoginToApiAndStorage({ username, password }: LoginUser) {
-  await authRepository.login({ username, password }).then(() => AuthStorage.registerIsLogged());
+  await authRepository
+    .login({ username, password })
+    .then(() => AuthStorage.registerIsLogged(username));
 }

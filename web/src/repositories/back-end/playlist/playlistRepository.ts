@@ -1,3 +1,3 @@
-import { HardcodedPlaylistRepository } from "./hardcodedPlaylistRepository";
+import { BackEndPlaylistRepository } from "./backEndPlaylistRepository";
 
-export const playlistRepository = new HardcodedPlaylistRepository();
+export const playlistRepository = new BackEndPlaylistRepository();
