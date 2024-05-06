@@ -75,6 +75,7 @@ export function CardArea() {
                             title={track.title}
                             artist={track.artist}
                             image={`https://e-cdns-images.dzcdn.net/images/artist/${track.md5_image}/500x500-000000-80-0-0.jpg`}
+                            id={track.id}
                         />
                     </SwiperSlide>
                     
