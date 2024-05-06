@@ -28,7 +28,7 @@ export function PlayerFooter() {
           <span className="text-xs text-zinc-500">00:30</span>
         </div>
       </div>
-      <div></div>
+      <div>..botão..</div>
     </div>
   );
 }
