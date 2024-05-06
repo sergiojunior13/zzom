@@ -84,14 +84,15 @@ export default function Sign() {
 
   type PasswordType = "password" | "text";
 
-  const [inputPasswordType, setInputPasswordType] = useState<PasswordType>("password");
+  const [inputPasswordType, setInputPasswordType] =
+    useState<PasswordType>("password");
   const handleTogglePasswordType = (type: PasswordType) => {
     setInputPasswordType(type === "password" ? "text" : "password");
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-zinc-800 text-white">
-      <div className="p-12 rounded-lg shadow-lg max-w-lg">
+    <div className="flex items-center justify-center h-screen bg-zinc-900 text-white rounded-lg">
+      <div className="p-12 rounded-lg shadow-lg max-w-lg bg-zinc-800">
         <img className="w-full h-8 mb-8" src="./logo.svg" alt="logo" />
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-2">
@@ -106,10 +107,7 @@ export default function Sign() {
           </div>
 
           <div className="flex flex-col gap-2 relative">
-            <label className="font-semibold text-sm">
-              Senha
-              
-            </label>
+            <label className="font-semibold text-sm">Senha</label>
             <input
               className="px-4 py-3 bg-zinc-900 border text-sm text-white leading-5 border-gray-200 rounded placeholder:text-white outline-none focus:border-purple-700"
               id="password"
@@ -123,11 +121,13 @@ export default function Sign() {
             >
               {inputPasswordType === "password" ? <EyeOff /> : <Eye />}
             </button>
-          
           </div>
 
           <footer className="flex flex-col gap-8">
-            <button className="bg-purple-500 text-white font-bold py-4 rounded outline-none hover:bg-purple-400" type="submit">
+            <button
+              className="bg-purple-500 text-white font-bold py-4 rounded outline-none hover:bg-purple-400"
+              type="submit"
+            >
               Criar conta
             </button>
             <span className="text-zinc-400">
@@ -145,5 +145,7 @@ export default function Sign() {
 }
 
 async function submitSignToApiAndStorage({ username, password }: SignUser) {
-  await authRepository.sign({ username, password }).then(() => AuthStorage.registerIsLogged());
+  await authRepository
+    .sign({ username, password })
+    .then(() => AuthStorage.registerIsLogged(username));
 }

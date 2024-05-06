@@ -21,24 +21,24 @@ export default function Playlists() {
 
   if (!playlists || playlists.length == 0) {
     return (
-      <Section>
+      <div className="my-14 w-full">
         <p className="text-center mb-4">Você não possui nenhuma playlist.</p>
 
         <CreatePlaylistButton />
-      </Section>
+      </div>
     );
   }
 
   return (
-    <Section className="my-14 max-w-3xl w-full m-auto">
+    <div className="my-14 w-full m-auto">
       <ul>
-        {playlists.map(playlist => (
+        {playlists.map((playlist) => (
           <PlaylistCard {...playlist} />
         ))}
       </ul>
 
       <CreatePlaylistButton />
-    </Section>
+    </div>
   );
 }
 
