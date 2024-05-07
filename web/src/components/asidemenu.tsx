@@ -15,8 +15,8 @@ export function AsideMenu() {
   }
 
   return (
-    <aside className="min-w-[128px] sticky top-0 left-0 h-full gap-2 flex flex-col">
-      <div className="bg-zinc-900 rounded-md p-3 flex flex-col justify-center gap-4">
+    <aside className="min-w-[200px]  sticky top-0 left-0 h-full gap-2 flex flex-col w-100%">
+      <div className="bg-zinc-900 rounded-md p-3 flex flex-col  justify-center gap-4">
         <Link
           href="/"
           className="flex items-center gap-2 text-sn font-semibold"

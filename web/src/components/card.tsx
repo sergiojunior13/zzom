@@ -51,7 +51,7 @@ export function TopTracks() {
           {
             params: {
               order: "RANKING",
-              limit: 5,
+              limit: 30,
             },
           }
         );

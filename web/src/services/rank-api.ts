@@ -6,7 +6,7 @@ export const fetchTopTracks = async (): Promise<APIMusicData[]> => {
     const response = await axios.get(`https://api.deezer.com/chart/0/tracks`, {
       params: {
         order: 'RANKING',
-        limit: 5, 
+        limit: 30, 
       },
     });
 
