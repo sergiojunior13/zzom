@@ -25,7 +25,10 @@ export async function MusicsList({
     };
 
     return (
-      <li key={music.id} className="p-2 rounded-lg hover:bg-zinc-800">
+      <li
+        key={music.id}
+        className="p-2 rounded-lg hover:bg-zinc-800 flex justify-between"
+      >
         <Link href={`/music/${music.id}`} className="flex gap-3 items-center">
           <img
             src={music.album.cover_medium}
@@ -35,17 +38,17 @@ export async function MusicsList({
           <div className="flex-1 flex flex-col gap-2">
             <div className="flex justify-between items-center">
               <h3 className="font-bold text-lg">{music.title}</h3>
-              <button
-                className="text-zinc-400 hover:text-zinc-200 transition-colors"
-                onClick={handlePlayPause}
-              >
-                {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-              </button>
             </div>
             <p className="text-zinc-200">{music.artist.name}</p>
-            <audio ref={audioRef} src={music.preview} />
           </div>
         </Link>
+        <audio ref={audioRef} src={music.preview} />
+        <button
+          className="text-zinc-400 hover:text-zinc-200 transition-colors  "
+          onClick={handlePlayPause}
+        >
+          {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+        </button>
       </li>
     );
   };
