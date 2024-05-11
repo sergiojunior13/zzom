@@ -19,8 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter();
-  const isLogged =
-    typeof window !== "undefined" ? AuthStorage.checkIsLogged() : false;
+
+  if(typeof window == "undefined") return <p>Renderizando...</p>;
+  
+  const isLogged = AuthStorage.checkIsLogged();
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [showAsideMenu, setShowAsideMenu] = useState(false);
 
